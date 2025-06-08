@@ -201,14 +201,6 @@ Edita las variables CSS en `src/App.css` o modifica la configuración de Tailwin
 
 Este proyecto está bajo la Licencia MIT. Ve el archivo `LICENSE` para más detalles.
 
-## 🆘 Soporte
-
-Si tienes problemas o preguntas:
-
-1. Revisa la [documentación](#-uso-de-la-aplicación)
-2. Busca en los [Issues](https://github.com/tu-usuario/calculadora-precios/issues)
-3. Crea un nuevo Issue si no encuentras solución
-
 ## 🙏 Agradecimientos
 
 - [React](https://reactjs.org/) - Framework de JavaScript
