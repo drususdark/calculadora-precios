@@ -3,7 +3,6 @@ import { Calculator } from './components/Calculator'
 import { Footer } from './components/Footer'
 import './App.css'
 import { Analytics } from '@vercel/analytics/react' // <-- Agregado
-import { SpeedInsights } from "@vercel/speed-insights/next"
 
 function App() {
   return (
