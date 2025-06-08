@@ -2,6 +2,7 @@ import { Header } from './components/Header'
 import { Calculator } from './components/Calculator'
 import { Footer } from './components/Footer'
 import './App.css'
+import { Analytics } from '@vercel/analytics/react' // <-- Agregado
 
 function App() {
   return (
@@ -11,9 +12,9 @@ function App() {
         <Calculator />
       </main>
       <Footer />
+      <Analytics /> {/* <-- Agregado aquí */}
     </div>
   )
 }
 
 export default App
-
