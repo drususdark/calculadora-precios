@@ -2,7 +2,7 @@ import { Header } from './components/Header'
 import { Calculator } from './components/Calculator'
 import { Footer } from './components/Footer'
 import './App.css'
-import { Analytics } from '@vercel/analytics/react' // <-- Agregado
+import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from "@vercel/speed-insights/react"
 
 function App() {
@@ -13,7 +13,8 @@ function App() {
         <Calculator />
       </main>
       <Footer />
-      <Analytics /> {/* <-- Agregado aquí */}
+      <Analytics />
+      <SpeedInsights /> {/* <-- AGREGADO AQUÍ */}
     </div>
   )
 }
