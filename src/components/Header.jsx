@@ -11,10 +11,9 @@ export function Header() {
           </h1>
         </div>
         <p className="text-blue-100 text-sm md:text-base">
-          Herramienta profesional para emprendedores
+          Herramienta para calcular el precio de venta de productos basado en el costo neto.
         </p>
       </div>
     </header>
   )
 }
-
