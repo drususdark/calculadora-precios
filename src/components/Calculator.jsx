@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Switch } from '@/components/ui/switch'
 import { 
   DollarSign, 
   TrendingUp, 
@@ -20,6 +21,7 @@ export function Calculator() {
   const [costoNeto, setCostoNeto] = useState('')
   const [margenSeleccionado, setMargenSeleccionado] = useState(0.30) // 30% por defecto
   const [ivaPercent, setIvaPercent] = useState(19)
+  const [ivaEnabled, setIvaEnabled] = useState(true)
   
   // Estados para el modo inverso
   const [precioFinal, setPrecioFinal] = useState('')
@@ -60,7 +62,7 @@ export function Calculator() {
     }
 
     const precioVentaNeto = costo / (1 - margenSeleccionado)
-    const iva = precioVentaNeto * (ivaPercent / 100)
+    const iva = ivaEnabled ? precioVentaNeto * (ivaPercent / 100) : 0
     const precioFinalPublico = precioVentaNeto + iva
     const gananciaNeta = precioVentaNeto - costo
     const porcentajeGananciaReal = (gananciaNeta / precioFinalPublico) * 100
@@ -88,9 +90,9 @@ export function Calculator() {
       return
     }
 
-    const precioVentaNeto = precioFinalInput / (1 + (ivaPercent / 100))
+    const precioVentaNeto = ivaEnabled ? precioFinalInput / (1 + (ivaPercent / 100)) : precioFinalInput
     const costoNetoPosible = precioVentaNeto * (1 - margenSeleccionado)
-    const iva = precioVentaNeto * (ivaPercent / 100)
+    const iva = ivaEnabled ? precioVentaNeto * (ivaPercent / 100) : 0
     const gananciaNeta = precioVentaNeto - costoNetoPosible
     const porcentajeGananciaReal = (gananciaNeta / precioFinalInput) * 100
 
@@ -111,17 +113,18 @@ export function Calculator() {
     } else {
       calcularModoInverso()
     }
-  }, [costoNeto, margenSeleccionado, ivaPercent, precioFinal, modoActivo])
+  }, [costoNeto, margenSeleccionado, ivaPercent, ivaEnabled, precioFinal, modoActivo])
 
   // Función para copiar resultados
   const copiarResultados = () => {
+    const ivaText = ivaEnabled ? `IVA (${ivaPercent}%): $${resultados.iva.toLocaleString()} CLP\n` : ''
+    
     const texto = modoActivo === 'normal' 
       ? `Calculadora de Precios - Resultados:
-Costo Neto: $${parseInt(costoNeto).toLocaleString()} CLP
+${ivaEnabled ? 'Costo Neto' : 'Costo del Producto'}: $${parseInt(costoNeto).toLocaleString()} CLP
 Margen: ${(margenSeleccionado * 100)}%
 Precio de Venta Neto: $${resultados.precioVentaNeto.toLocaleString()} CLP
-IVA (${ivaPercent}%): $${resultados.iva.toLocaleString()} CLP
-Precio Final al Público: $${resultados.precioFinalPublico.toLocaleString()} CLP
+${ivaText}Precio Final al Público: $${resultados.precioFinalPublico.toLocaleString()} CLP
 Ganancia Neta: $${resultados.gananciaNeta.toLocaleString()} CLP
 % Ganancia Real: ${resultados.porcentajeGananciaReal}%`
       : `Calculadora de Precios - Modo Inverso:
@@ -129,12 +132,10 @@ Precio Final Deseado: $${parseInt(precioFinal).toLocaleString()} CLP
 Margen: ${(margenSeleccionado * 100)}%
 Precio de Venta Neto: $${resultados.precioVentaNeto.toLocaleString()} CLP
 Costo Neto Posible: $${resultados.costoNetoPosible?.toLocaleString()} CLP
-IVA (${ivaPercent}%): $${resultados.iva.toLocaleString()} CLP
-Ganancia Neta: $${resultados.gananciaNeta.toLocaleString()} CLP
+${ivaText}Ganancia Neta: $${resultados.gananciaNeta.toLocaleString()} CLP
 % Ganancia Real: ${resultados.porcentajeGananciaReal}%`
 
     navigator.clipboard.writeText(texto).then(() => {
-      // Aquí podrías agregar una notificación de éxito
       alert('Resultados copiados al portapapeles')
     })
   }
@@ -177,13 +178,13 @@ Ganancia Neta: $${resultados.gananciaNeta.toLocaleString()} CLP
             {modoActivo === 'normal' ? (
               <div className="space-y-2">
                 <Label htmlFor="costo-neto" className="flex items-center gap-2">
-                  Costo Neto (sin IVA)
+                  {ivaEnabled ? 'Costo Neto (sin IVA)' : 'Costo del Producto'}
                   <Tooltip>
                     <TooltipTrigger>
                       <Info className="h-4 w-4 text-gray-400" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>El precio que te cuesta el producto sin incluir el IVA</p>
+                      <p>{ivaEnabled ? 'El precio que te cuesta el producto sin incluir el IVA' : 'El precio que te cuesta el producto'}</p>
                     </TooltipContent>
                   </Tooltip>
                 </Label>
@@ -204,7 +205,7 @@ Ganancia Neta: $${resultados.gananciaNeta.toLocaleString()} CLP
             ) : (
               <div className="space-y-2">
                 <Label htmlFor="precio-final" className="flex items-center gap-2">
-                  Precio Final Deseado (con IVA)
+                  Precio Final Deseado {ivaEnabled ? '(con IVA)' : ''}
                   <Tooltip>
                     <TooltipTrigger>
                       <Info className="h-4 w-4 text-gray-400" />
@@ -257,28 +258,50 @@ Ganancia Neta: $${resultados.gananciaNeta.toLocaleString()} CLP
               </div>
             </div>
 
-            {/* Selector de IVA */}
-            <div className="space-y-2">
-              <Label htmlFor="iva" className="flex items-center gap-2">
-                IVA (%)
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Info className="h-4 w-4 text-gray-400" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Porcentaje de IVA aplicable (19% para Chile)</p>
-                  </TooltipContent>
-                </Tooltip>
-              </Label>
-              <Input
-                id="iva"
-                type="number"
-                value={ivaPercent}
-                onChange={(e) => setIvaPercent(Math.max(0, parseInt(e.target.value) || 0))}
-                className="w-24"
-                min="0"
-                max="100"
-              />
+            {/* Toggle y Selector de IVA */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center gap-2">
+                  Incluir IVA
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="h-4 w-4 text-gray-400" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Activa o desactiva el cálculo del IVA en los precios</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </Label>
+                <Switch
+                  checked={ivaEnabled}
+                  onCheckedChange={setIvaEnabled}
+                />
+              </div>
+              
+              {ivaEnabled && (
+                <div className="space-y-2">
+                  <Label htmlFor="iva" className="flex items-center gap-2">
+                    IVA (%)
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="h-4 w-4 text-gray-400" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Porcentaje de IVA aplicable (19% para Chile)</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </Label>
+                  <Input
+                    id="iva"
+                    type="number"
+                    value={ivaPercent}
+                    onChange={(e) => setIvaPercent(Math.max(0, parseInt(e.target.value) || 0))}
+                    className="w-24"
+                    min="0"
+                    max="100"
+                  />
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -303,14 +326,16 @@ Ganancia Neta: $${resultados.gananciaNeta.toLocaleString()} CLP
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">IVA ({ivaPercent}%):</span>
+              {ivaEnabled && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">IVA ({ivaPercent}%):</span>
+                  </div>
+                  <div className="text-xl font-semibold text-blue-600">
+                    ${resultados.iva.toLocaleString()} CLP
+                  </div>
                 </div>
-                <div className="text-xl font-semibold text-blue-600">
-                  ${resultados.iva.toLocaleString()} CLP
-                </div>
-              </div>
+              )}
 
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
@@ -333,7 +358,7 @@ Ganancia Neta: $${resultados.gananciaNeta.toLocaleString()} CLP
               {modoActivo === 'inverso' && resultados.costoNetoPosible && (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">Costo Neto Posible:</span>
+                    <span className="text-sm font-medium">{ivaEnabled ? 'Costo Neto Posible:' : 'Costo Posible:'}</span>
                   </div>
                   <div className="text-xl font-semibold text-gray-600">
                     ${resultados.costoNetoPosible.toLocaleString()} CLP
@@ -361,4 +386,3 @@ Ganancia Neta: $${resultados.gananciaNeta.toLocaleString()} CLP
     </TooltipProvider>
   )
 }
-
