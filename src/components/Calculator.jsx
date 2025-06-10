@@ -21,7 +21,7 @@ export function Calculator() {
   const [costoNeto, setCostoNeto] = useState('')
   const [margenSeleccionado, setMargenSeleccionado] = useState(0.30) // 30% por defecto
   const [ivaPercent, setIvaPercent] = useState(19)
-  const [ivaEnabled, setIvaEnabled] = useState(true)
+  const [ivaEnabled, setIvaEnabled] = useState(false)
   
   // Estados para el modo inverso
   const [precioFinal, setPrecioFinal] = useState('')
